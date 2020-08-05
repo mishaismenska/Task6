@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">Android-2020-Task-6</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="data_source">Data source</string>
+    <string name="data_source_key">data_source_key</string>
+    <string name="network">Network</string>
+    <string name="local_json_file">Local json file</string>
+    <string name="choose_data_source">Choose data source for videos</string>
+    <string name="settings">Settings</string>
+</resources>

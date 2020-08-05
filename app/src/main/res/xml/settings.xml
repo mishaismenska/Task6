@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <ListPreference
+        android:defaultValue="0"
+        android:icon="@drawable/ic_baseline_storage_24"
+        android:entries="@array/sources"
+        android:entryValues="@array/sourcesValues"
+        android:title="@string/data_source"
+        android:key="@string/data_source_key"
+        android:summary="@string/choose_data_source">
+    </ListPreference>
+</PreferenceScreen>
