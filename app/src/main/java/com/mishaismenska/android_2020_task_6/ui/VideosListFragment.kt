@@ -8,15 +8,20 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentManager
+import androidx.fragment.app.FragmentTransaction
+import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.mishaismenska.android_2020_task_6.App
+import com.mishaismenska.android_2020_task_6.AppConstants
 import com.mishaismenska.android_2020_task_6.R
+import com.mishaismenska.android_2020_task_6.data.VideoMeta
 import com.mishaismenska.android_2020_task_6.databinding.FragmentVideosListBinding
+import com.mishaismenska.android_2020_task_6.interfaces.OnVideoItemClickListener
 import com.mishaismenska.android_2020_task_6.interfaces.VideosListPresenter
 import com.mishaismenska.android_2020_task_6.interfaces.VideosListView
 import javax.inject.Inject
 
-class VideosListFragment : Fragment(), VideosListView {
+class VideosListFragment : Fragment(), VideosListView, OnVideoItemClickListener {
 
     @Inject
     lateinit var videosListPresenter: VideosListPresenter
@@ -33,8 +38,18 @@ class VideosListFragment : Fragment(), VideosListView {
         savedInstanceState: Bundle?
     ): View? {
         binding = FragmentVideosListBinding.inflate(inflater, container, false)
-        videosListPresenter.bindToView(this, binding, activity as MainActivity)
+        videosListPresenter.bindToView(this)
         setHasOptionsMenu(true)
+        (activity as MainActivity).supportActionBar?.show()
+        val decoration = DividerItemDecoration(context, LinearLayoutManager.VERTICAL)
+        decoration.setDrawable(
+            requireContext().getDrawable(
+                R.drawable.recycler_divider
+            )!!
+        )
+        binding.mainRecycler.addItemDecoration(decoration)
+        binding.mainRecycler.adapter = VideosListRecyclerAdapter(this)
+        videosListPresenter.loadContent()
         return binding.root
     }
 
@@ -54,5 +69,39 @@ class VideosListFragment : Fragment(), VideosListView {
         } else false
     }
 
-    override fun getSupportFragmentManager(): FragmentManager = parentFragmentManager
+    override fun openSettings() {
+        parentFragmentManager.beginTransaction()
+            .replace(R.id.main_fragment_container, SettingsFragment())
+            .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
+            .addToBackStack(null)
+            .commit()
+    }
+
+    private fun getSettingsFragment(id: Int) = DetailsFragment().apply {
+        arguments = Bundle().apply {
+            putInt(AppConstants.POSITION_KEY, id)
+        }
+    }
+
+    override fun openVideoDetails(id: Int) {
+        parentFragmentManager.beginTransaction()
+            .replace(R.id.main_fragment_container, getSettingsFragment(id))
+            .addToBackStack(null)
+            .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN).commit()
+    }
+
+    override fun showProgressBar() {
+        binding.mainRecycler.visibility = View.INVISIBLE
+        binding.videosListProgressBar.visibility = View.VISIBLE
+    }
+
+    override fun showContent(videos: List<VideoMeta>) {
+        binding.mainRecycler.visibility = View.VISIBLE
+        binding.videosListProgressBar.visibility = View.GONE
+        (binding.mainRecycler.adapter as VideosListRecyclerAdapter).data = videos
+    }
+
+    override fun onClick(position: Int) {
+        videosListPresenter.onVideoItemClick(position)
+    }
 }

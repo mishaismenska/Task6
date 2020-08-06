@@ -14,13 +14,26 @@ class RetrofitModule {
 
     @Provides
     @Singleton
-    fun provideRetrofit(): Retrofit {
-        return Retrofit.Builder()
-            .addConverterFactory(
-                TikXmlConverterFactory.create(
-                    TikXml.Builder().exceptionOnUnreadXml(false).build()
-                )
-            )
+    fun provideTickXmlBuilder(): TikXml.Builder = TikXml.Builder()
+
+    @Provides
+    @Singleton
+    fun provideTickXml(tickXmlBuilder: TikXml.Builder): TikXml =
+        tickXmlBuilder.exceptionOnUnreadXml(false).build()
+
+    @Provides
+    @Singleton
+    fun provideTickXmlConverterFactory(tickXml: TikXml): TikXmlConverterFactory = TikXmlConverterFactory.create(tickXml)
+
+    @Provides
+    @Singleton
+    fun provideRetrofitBuilder(): Retrofit.Builder = Retrofit.Builder()
+
+    @Provides
+    @Singleton
+    fun provideRetrofit(tickXmlConverterFactory: TikXmlConverterFactory, retrofitBuilder: Retrofit.Builder): Retrofit {
+        return retrofitBuilder
+            .addConverterFactory(tickXmlConverterFactory)
             .baseUrl(AppConstants.BASE_URL)
             .build()
     }
